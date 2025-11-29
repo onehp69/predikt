@@ -300,6 +300,26 @@
         .blink { animation: blink 1.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 100;
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-box {
+            width: 600px; max-width: 90%; background: var(--bg-panel); border: 1px solid var(--accent);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+        .modal-header {
+            background: var(--accent); color: #000; padding: 15px 20px; font-weight: 800;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-body { padding: 30px; overflow-y: auto; max-height: 80vh; }
+        .lb-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .lb-table th { text-align: left; padding: 10px; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+        .lb-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .rank-1 { color: #FFD700; }
+
     </style>
 </head>
 <body>
@@ -351,8 +371,8 @@
         <!-- RIGHT: Navigation & Wallet -->
         <div class="nav-right">
             <button class="nav-link" id="btn-chart" onclick="toggleChart()">[ CHART ]</button>
-            <button class="nav-link" onclick="alert('Leaderboard Module Pending')">LEADERBOARD</button>
-            <button class="nav-link" onclick="alert('Help Module Pending')">HOW IT WORKS</button>
+            <button class="nav-link" onclick="openModal('lb')">LEADERBOARD</button>
+            <button class="nav-link" onclick="openModal('help')">HOW IT WORKS</button>
             <button class="btn-connect" id="btn-wallet" onclick="toggleWallet()">CONNECT WALLET</button>
         </div>
     </nav>
@@ -472,6 +492,74 @@
         <!-- Docs -->
         <div class="social-icon">
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 12h8v2H8v-2zm0 4h8v2H8v-2zm0-8h5v2H8V8z"/></svg>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="modal-lb">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span>// LEADERBOARD</span>
+                <span style="cursor:pointer" onclick="closeModals()">[X]</span>
+            </div>
+            <div class="modal-body">
+                <table class="lb-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Win Rate</th>
+                            <th>Net Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="rank-1">#1</td>
+                            <td>0xGhost...Alpha</td>
+                            <td>88%</td>
+                            <td style="color: var(--accent); font-weight: 700;">+$420,000</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-1">#2</td>
+                            <td>Satoshi_Nak</td>
+                            <td>82%</td>
+                            <td style="color: var(--accent); font-weight: 700;">+$310,500</td>
+                        </tr>
+                        <tr>
+                            <td>#3</td>
+                            <td>Vitalik_Eth</td>
+                            <td>79%</td>
+                            <td style="color: var(--accent); font-weight: 700;">+$150,200</td>
+                        </tr>
+                        <tr>
+                            <td>#4</td>
+                            <td>Solana_Degen</td>
+                            <td>65%</td>
+                            <td style="color: var(--accent); font-weight: 700;">+$80,000</td>
+                        </tr>
+                        <tr>
+                            <td>#5</td>
+                            <td>Hype_Beast</td>
+                            <td>61%</td>
+                            <td style="color: var(--accent); font-weight: 700;">+$12,400</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-help">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span>// SYSTEM_MANUAL</span>
+                <span style="cursor:pointer" onclick="closeModals()">[X]</span>
+            </div>
+            <div class="modal-body" style="color: var(--text-bright)">
+                <p style="margin-bottom:15px"><strong style="color:var(--accent)">01. PREDICT</strong><br>Guess if the asset price will be HIGHER or LOWER than the locked price.</p>
+                <p style="margin-bottom:15px"><strong style="color:var(--accent)">02. COMMIT</strong><br>Enter your position in the NEXT card before the timer runs out.</p>
+                <p><strong style="color:var(--accent)">03. WIN</strong><br>If correct, you win a share of the loser's pool. Multipliers adjust dynamically.</p>
+            </div>
         </div>
     </div>
 
@@ -648,9 +736,20 @@
                 btn.style.color = "#000";
             } else {
                 btn.innerText = "CONNECT WALLET";
-                btn.style.background = "rgba(0, 255, 157, 0.1)";
+                btn.style.background = "transparent";
                 btn.style.color = "var(--accent)";
             }
+        }
+
+        // --- MODALS ---
+        function openModal(type) {
+            closeModals();
+            if(type === 'lb') document.getElementById('modal-lb').style.display = 'flex';
+            if(type === 'help') document.getElementById('modal-help').style.display = 'flex';
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
         }
 
         // Init
