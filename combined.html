@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOST PREDICT | ULTRA</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* --- COLOR PALETTE --- */
+            --bg-deep: #030304;
+            --bg-panel: #0a0a0c;
+            --border: #222;
+            --border-active: #444;
+
+            --accent: #00ff9d; /* Cyber Mint */
+            --danger: #ff0055; /* Neon Crimson */
+
+            --text-bright: #ffffff;
+            --text-dim: #666;
+
+            --glow-accent: 0 0 20px rgba(0, 255, 157, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-bright);
+            font-family: 'JetBrains Mono', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #111 0%, #000 120%);
+        }
+
+        /* --- CRT OVERLAY --- */
+        .crt-lines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px; pointer-events: none; z-index: 999; opacity: 0.3;
+        }
+
+        /* --- NAVBAR --- */
+        nav {
+            height: 70px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
+            background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(10px);
+            z-index: 50; flex-shrink: 0;
+        }
+
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 25px; }
+
+        /* Container */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* The SVG Icon */
+        .logo-mark {
+            width: 32px;
+            height: 32px;
+            color: var(--accent); /* This makes it change color with the asset! */
+            filter: drop-shadow(0 0 8px var(--accent));
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* The Text */
+        .logo-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: -1px;
+            color: #fff;
+        }
+
+        /* Hover Animation */
+        .brand:hover .logo-mark {
+            transform: translateY(-2px) scale(1.05);
+            filter: drop-shadow(0 0 15px var(--accent));
+        }
+
+        /* Updated Asset Switcher */
+        .asset-pills { display: flex; gap: 4px; background: #000; padding: 3px; border-radius: 4px; border: 1px solid var(--border); }
+        .pill {
+            background: transparent; border: none; color: var(--text-dim);
+            padding: 6px 12px; font-family: inherit; font-size: 0.75rem; font-weight: 500;
+            cursor: pointer; transition: 0.3s; border-radius: 2px;
+        }
+        .pill:hover { color: white; }
+        .pill.active { background: var(--border); color: var(--accent); font-weight: 800; }
+
+        /* Center: Stats Bar */
+        .stats-bar {
+            display: flex; gap: 30px; height: 40px; align-items: center;
+            padding: 0 20px; border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+        }
+        .stat-item { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .stat-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; }
+        .stat-val { font-weight: 700; font-size: 0.9rem; color: var(--text-bright); }
+        .stat-val.colored { color: var(--accent); }
+
+        .btn-connect {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 16px; font-family: inherit; font-size: 0.75rem; font-weight: 700;
+            cursor: pointer; text-transform: uppercase; transition: 0.2s;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0);
+        }
+        .btn-connect:hover {
+            background: var(--accent); color: #000;
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .nav-link {
+            background: transparent; border: none; color: var(--text-dim);
+            font-family: inherit; font-size: 0.75rem; cursor: pointer;
+            text-transform: uppercase; transition: 0.2s; letter-spacing: 1px;
+        }
+        .nav-link:hover { color: var(--text-bright); text-shadow: 0 0 8px rgba(255,255,255,0.5); }
+        .nav-link.active { color: var(--accent); }
+
+        /* --- SOCIALS FOOTER (NEW) --- */
+        .socials-bar {
+            position: fixed; bottom: 20px; right: 20px;
+            display: flex; gap: 10px; z-index: 100;
+        }
+        .social-icon {
+            width: 36px; height: 36px;
+            background: rgba(10, 10, 12, 0.8);
+            border: 1px solid var(--border);
+            display: flex; justify-content: center; align-items: center;
+            color: var(--text-dim); cursor: pointer; transition: 0.3s;
+            border-radius: 4px;
+        }
+        .social-icon:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-2px); }
+        .social-icon svg { width: 16px; height: 16px; fill: currentColor; }
+
+        /* --- CHART DRAWER --- */
+        #chart-drawer {
+            height: 0; transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-bottom: 1px solid var(--border); background: #000; overflow: hidden;
+        }
+        #chart-drawer.open { height: 400px; }
+
+        /* --- MAIN STAGE --- */
+        .stage {
+            flex: 1; display: flex; justify-content: center; align-items: center; gap: 40px;
+            perspective: 1000px; padding: 20px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stage.minimized {
+            padding: 10px 20px;
+        }
+
+        /* --- CARD DESIGN --- */
+        .card {
+            width: 340px; height: 520px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            position: relative; display: flex; flex-direction: column;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+        }
+
+        .stage.minimized .card {
+            width: 240px; height: 340px;
+        }
+
+        .stage.minimized .card-body {
+            padding: 15px;
+            gap: 10px;
+        }
+
+        .stage.minimized .big-val {
+            font-size: 1.5rem;
+        }
+
+        .stage.minimized .price-display {
+            padding: 15px 0;
+        }
+
+        .stage.minimized .row-data {
+            padding: 8px;
+            font-size: 0.7rem;
+        }
+
+        .stage.minimized .card-header {
+            padding: 10px;
+            font-size: 0.65rem;
+        }
+
+        .stage.minimized .btn-bet {
+            padding: 12px;
+            font-size: 0.85rem;
+        }
+
+        .stage.minimized .bet-select-group {
+            gap: 8px;
+        }
+        /* Tech Corners */
+        .card::before, .card::after { content: ''; position: absolute; width: 8px; height: 8px; transition: 0.3s; }
+        .card::before { top: -1px; left: -1px; border-top: 2px solid var(--text-dim); border-left: 2px solid var(--text-dim); }
+        .card::after { bottom: -1px; right: -1px; border-bottom: 2px solid var(--text-dim); border-right: 2px solid var(--text-dim); }
+
+        .card-header {
+            padding: 16px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.75rem; background: rgba(255,255,255,0.02);
+            text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim);
+        }
+        .card-body { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+        /* Card States */
+        .card.prev { transform: scale(0.9) translateX(20px); opacity: 0.4; filter: grayscale(1); z-index: 1; }
+        .card.live {
+            transform: scale(1.05); z-index: 10; border-color: var(--accent);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), var(--glow-accent);
+        }
+        .card.live .card-header { background: var(--accent); color: #000; font-weight: 800; }
+        .card.live::before { border-color: var(--accent); } .card.live::after { border-color: var(--accent); }
+        .card.next { transform: scale(0.9) translateX(-20px); z-index: 1; border-color: var(--border-active); }
+        .card.next .card-header { color: var(--text-bright); border-color: var(--border-active); }
+
+        /* Data Components */
+        .row-data {
+            display: flex; justify-content: space-between; font-size: 0.8rem;
+            padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+        }
+        .txt-up { color: #00ff41; font-weight: 700; }
+        .txt-down { color: #ff0055; font-weight: 700; }
+
+        .price-display {
+            text-align: center; padding: 30px 0;
+            background: rgba(0,0,0,0.5); border: 2px solid var(--border);
+            position: relative; overflow: hidden; transition: 0.3s;
+        }
+        .big-val { font-size: 2.2rem; font-weight: 300; letter-spacing: -1px; position: relative; z-index: 2; }
+        .label { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 5px; display: block; }
+        .diff-tag {
+            font-size: 0.75rem; padding: 4px 8px; border-radius: 4px;
+            background: #111; border: 1px solid var(--border);
+            display: inline-block; margin-top: 10px;
+        }
+
+        .win-up .price-display {
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.1);
+        }
+        .win-up .big-val { color: #00ff41; }
+        .win-down .price-display {
+            border-color: #ff0055;
+            background: rgba(255, 0, 85, 0.1);
+        }
+        .win-down .big-val { color: #ff0055; }
+
+        /* Interactive Form */
+        .bet-select-group { display: flex; flex-direction: column; gap: 12px; height: 100%; justify-content: center; }
+        .btn-bet {
+            padding: 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+            color: var(--text-dim); cursor: pointer; transition: 0.2s;
+            font-family: inherit; font-size: 1rem; font-weight: 800; text-transform: uppercase;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-bet:hover { color: white; border-color: white; transform: translateY(-2px); }
+        .btn-bet.up:hover { border-color: #00ff41; color: #00ff41; box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.1); }
+        .btn-bet.down:hover { border-color: #ff0055; color: #ff0055; box-shadow: inset 0 0 20px rgba(255, 0, 85, 0.1); }
+
+        .input-state { display: none; flex-direction: column; gap: 15px; height: 100%; justify-content: center; animation: fadeIn 0.3s; }
+        .input-wrapper { position: relative; }
+        .amt-input {
+            width: 100%; background: #000; border: 1px solid var(--border);
+            color: white; font-family: inherit; font-size: 1.5rem; text-align: center; padding: 15px;
+        }
+        .amt-input:focus { border-color: var(--text-dim); }
+
+        .btn-confirm {
+            width: 100%; padding: 15px; border: none; font-weight: 800;
+            font-family: inherit; text-transform: uppercase; cursor: pointer;
+            background: var(--border); color: #888; transition: 0.2s;
+        }
+        .btn-confirm.ready { color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .input-state[data-side="up"] .btn-confirm.ready { background: #00ff41; }
+        .input-state[data-side="down"] .btn-confirm.ready { background: #ff0055; color: white; }
+
+        .btn-cancel {
+            background: none; border: none; color: var(--text-dim); font-size: 0.7rem;
+            text-decoration: underline; cursor: pointer; align-self: center;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .blink { animation: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="crt-lines"></div>
+
+    <nav>
+        <!-- LEFT: Brand & Assets -->
+        <div class="nav-left">
+            <div class="brand">
+                <div class="logo-mark">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- The Spirit Shape -->
+                        <path d="M50 15 C 30 15, 15 30, 15 50 V 85 H 85 V 50 C 85 30, 70 15, 50 15 Z" fill="currentColor"/>
+                        <!-- The Eyes (Dark to match background) -->
+                        <rect x="32" y="45" width="10" height="10" rx="2" fill="#050505"/>
+                        <rect x="58" y="45" width="10" height="10" rx="2" fill="#050505"/>
+                        <!-- The Status Dot -->
+                        <circle cx="85" cy="15" r="6" fill="currentColor"/>
+                    </svg>
+                </div>
+                <span class="logo-text">GHOST</span>
+            </div>
+            <div class="asset-pills">
+                <button class="pill active" onclick="setAsset('BTC')">BTC</button>
+                <button class="pill" onclick="setAsset('SOL')">SOL</button>
+                <button class="pill" onclick="setAsset('HYPE')">HYPE</button>
+                <button class="pill" onclick="setAsset('MON')">MON</button>
+                <button class="pill" onclick="setAsset('ETH')">ETH</button>
+            </div>
+        </div>
+
+        <!-- CENTER: Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">Price</span>
+                <span class="stat-val colored" id="navPrice">--</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">24h Pool</span>
+                <span class="stat-val">$4.2M</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Next Round</span>
+                <span class="stat-val">04:30</span>
+            </div>
+        </div>
+
+        <!-- RIGHT: Navigation & Wallet -->
+        <div class="nav-right">
+            <button class="nav-link" id="btn-chart" onclick="toggleChart()">[ CHART ]</button>
+            <button class="nav-link" onclick="alert('Leaderboard Module Pending')">LEADERBOARD</button>
+            <button class="nav-link" onclick="alert('Help Module Pending')">HOW IT WORKS</button>
+            <button class="btn-connect" id="btn-wallet" onclick="toggleWallet()">CONNECT WALLET</button>
+        </div>
+    </nav>
+
+    <!-- TRADINGVIEW DRAWER -->
+    <div id="chart-drawer">
+        <div class="tradingview-widget-container" id="tv_chart_container" style="height:100%; width:100%"></div>
+    </div>
+
+    <!-- MAIN GAME STAGE -->
+    <div class="stage">
+
+        <!-- 1. PREVIOUS CARD -->
+        <div class="card prev">
+            <div class="card-header">
+                <span>#8821 // CLOSED</span>
+                <span>--</span>
+            </div>
+            <div class="card-body">
+                <div class="row-data">
+                    <span class="txt-up">UP 1.8x</span>
+                    <span>LOCK: <span class="lock-price">90,400</span></span>
+                </div>
+                <div class="price-display" style="border-color:var(--accent); color:var(--accent);">
+                    <span class="label">SETTLED</span>
+                    <div class="big-val">90,450</div>
+                    <div class="diff-tag" style="color:var(--accent); border-color:var(--accent)">WINNER: UP</div>
+                </div>
+                <div class="row-data">
+                    <span class="txt-down">DOWN 2.1x</span>
+                    <span>POOL: 12.5 <span class="asset-unit">BTC</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. LIVE CARD -->
+        <div class="card live" id="liveCard">
+            <div class="card-header">
+                <span>#8822 // LIVE <span class="blink">●</span></span>
+                <span>EXECUTING</span>
+            </div>
+            <div class="card-body">
+                <div class="row-data">
+                    <span class="txt-up">UP 2.05x</span>
+                    <span>LOCK: <span class="lock-price">--</span></span>
+                </div>
+
+                <div class="price-display">
+                    <span class="label">LAST PRICE</span>
+                    <div class="big-val" id="livePrice">--</div>
+                    <div class="diff-tag" id="liveDiff">--</div>
+                </div>
+
+                <div class="row-data">
+                    <span class="txt-down">DOWN 1.95x</span>
+                    <span>POOL: 42.1 <span class="asset-unit">BTC</span></span>
+                </div>
+
+                <div style="margin-top:auto; text-align:center;">
+                    <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:5px;">ROUND ENDS IN</div>
+                    <div style="font-size:1.5rem; font-weight:700;">00:45</div>
+                    <div style="height:2px; background:#222; width:100%; margin-top:10px; position:relative;">
+                        <div style="height:100%; width:60%; background:white; box-shadow:0 0 10px white;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. NEXT CARD -->
+        <div class="card next">
+            <div class="card-header">
+                <span>#8823 // NEXT</span>
+                <span>ENTRIES OPEN</span>
+            </div>
+            <div class="card-body">
+                <div class="row-data">
+                    <span><span class="txt-up">1.9x</span> / <span class="txt-down">1.9x</span></span>
+                    <span>POOL: 2.4 <span class="asset-unit">BTC</span></span>
+                </div>
+
+                <!-- Step 1: Buttons -->
+                <div id="step-1" class="bet-select-group">
+                    <button class="btn-bet up" onclick="setupBet('up')">
+                        <span>ENTER UP</span> <span>↗</span>
+                    </button>
+                    <button class="btn-bet down" onclick="setupBet('down')">
+                        <span>ENTER DOWN</span> <span>↘</span>
+                    </button>
+                </div>
+
+                <!-- Step 2: Input -->
+                <div id="step-2" class="input-state">
+                    <div style="text-align:center; font-size:0.8rem; color:white;">
+                        POSITION: <span id="pos-label" style="font-weight:800">--</span>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <input type="number" id="betInput" class="amt-input" placeholder="0.00">
+                        <span style="position:absolute; right:15px; top:20px; font-size:0.8rem; color:#555" id="assetLabel">BTC</span>
+                    </div>
+
+                    <button id="confirmBtn" class="btn-confirm" onclick="confirmBet()">ENTER AMOUNT</button>
+                    <button class="btn-cancel" onclick="resetBet()">CANCEL</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SOCIALS FOOTER -->
+    <div class="socials-bar">
+        <!-- Twitter/X -->
+        <div class="social-icon">
+            <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </div>
+        <!-- Docs -->
+        <div class="social-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 12h8v2H8v-2zm0 4h8v2H8v-2zm0-8h5v2H8V8z"/></svg>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        // --- DATA & STATE ---
+        const assets = {
+            'BTC': { price: 96420.00, symbol: 'BINANCE:BTCUSDT', color: '#F7931A' },
+            'SOL': { price: 238.50, symbol: 'BINANCE:SOLUSDT', color: '#9945FF' },
+            'HYPE': { price: 14.20, symbol: 'BITGET:HYPEUSDT', color: '#00ff9d' },
+            'MON': { price: 8.50, symbol: 'BINANCE:BNBUSDT', color: '#7B3FE4' },
+            'ETH': { price: 3650.00, symbol: 'BINANCE:ETHUSDT', color: '#627EEA' }
+        };
+        let currentAsset = 'BTC';
+        let lockPrice = 96420.00;
+        let curPrice = 96420.00;
+
+        // --- ASSET SWITCHER ---
+        function setAsset(asset) {
+            currentAsset = asset;
+            lockPrice = assets[asset].price;
+            curPrice = assets[asset].price;
+
+            // Update theme color
+            const assetColor = assets[asset].color;
+            document.documentElement.style.setProperty('--accent', assetColor);
+            const rgb = hexToRgb(assetColor);
+            document.documentElement.style.setProperty('--glow-accent', `0 0 20px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2)`);
+
+            // Nav Tabs
+            document.querySelectorAll('.pill').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText === asset) btn.classList.add('active');
+            });
+
+            // Update UI Text
+            document.querySelectorAll('.lock-price').forEach(el => el.innerText = `${lockPrice.toLocaleString()}`);
+            document.querySelectorAll('.asset-unit').forEach(el => el.innerText = asset);
+            document.getElementById('assetLabel').innerText = asset;
+
+            if(document.getElementById('chart-drawer').classList.contains('open')) loadChart();
+        }
+
+        // Helper function to convert hex to RGB
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        // --- BETTING INTERACTION ---
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const posLabel = document.getElementById('pos-label');
+        const betInput = document.getElementById('betInput');
+        const confirmBtn = document.getElementById('confirmBtn');
+
+        function setupBet(dir) {
+            step1.style.display = 'none';
+            step2.style.display = 'flex';
+
+            step2.setAttribute('data-side', dir);
+
+            posLabel.innerText = dir.toUpperCase();
+            posLabel.style.color = dir === 'up' ? '#00ff41' : '#ff0055';
+            betInput.value = '';
+            betInput.focus();
+            confirmBtn.className = 'btn-confirm';
+            confirmBtn.innerText = "ENTER AMOUNT";
+        }
+
+        betInput.addEventListener('input', (e) => {
+            if(parseFloat(e.target.value) > 0) {
+                confirmBtn.classList.add('ready');
+                confirmBtn.innerText = "CONFIRM ENTRY";
+            } else {
+                confirmBtn.classList.remove('ready');
+                confirmBtn.innerText = "ENTER AMOUNT";
+            }
+        });
+
+        function confirmBet() {
+            if(!confirmBtn.classList.contains('ready')) return;
+            confirmBtn.innerText = "PROCESSING...";
+            setTimeout(() => {
+                confirmBtn.innerText = "APPROVED";
+                setTimeout(resetBet, 1000);
+            }, 1000);
+        }
+
+        function resetBet() {
+            step2.style.display = 'none';
+            step1.style.display = 'flex';
+        }
+
+        // --- LIVE TICKER ---
+        const livePriceEl = document.getElementById('livePrice');
+        const liveDiffEl = document.getElementById('liveDiff');
+        const navPriceEl = document.getElementById('navPrice');
+        const liveCard = document.getElementById('liveCard');
+
+        function tick() {
+            // Simulate Price
+            const move = (Math.random() - 0.5) * (curPrice * 0.0005);
+            curPrice += move;
+
+            const diff = curPrice - lockPrice;
+            const sign = diff >= 0 ? "+" : "";
+
+            const pStr = curPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            livePriceEl.innerText = `${pStr}`;
+            navPriceEl.innerText = `$${pStr}`;
+            liveDiffEl.innerText = `${sign}${diff.toFixed(2)}`;
+
+            // Visual State Update
+            if(curPrice >= lockPrice) {
+                liveCard.className = "card live win-up";
+                liveDiffEl.style.color = "#00ff41";
+                liveDiffEl.style.borderColor = "#00ff41";
+            } else {
+                liveCard.className = "card live win-down";
+                liveDiffEl.style.color = "#ff0055";
+                liveDiffEl.style.borderColor = "#ff0055";
+            }
+        }
+        setInterval(tick, 1000);
+
+        // --- CHART ---
+        function toggleChart() {
+            const drawer = document.getElementById('chart-drawer');
+            const btn = document.getElementById('btn-chart');
+            const stage = document.querySelector('.stage');
+
+            if(drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                btn.classList.remove('active');
+                stage.classList.remove('minimized');
+                document.getElementById('tv_chart_container').innerHTML = "";
+            } else {
+                drawer.classList.add('open');
+                btn.classList.add('active');
+                stage.classList.add('minimized');
+                loadChart();
+            }
+        }
+
+        function loadChart() {
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": assets[currentAsset].symbol,
+                "interval": "1",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": "#f1f3f6",
+                "enable_publishing": false,
+                "hide_top_toolbar": true,
+                "container_id": "tv_chart_container"
+            });
+        }
+
+        // --- WALLET ---
+        function toggleWallet() {
+            const btn = document.getElementById('btn-wallet');
+            if(btn.innerText === "CONNECT WALLET") {
+                btn.innerText = "0x8A...3F";
+                btn.style.background = "var(--accent)";
+                btn.style.color = "#000";
+            } else {
+                btn.innerText = "CONNECT WALLET";
+                btn.style.background = "rgba(0, 255, 157, 0.1)";
+                btn.style.color = "var(--accent)";
+            }
+        }
+
+        // Init
+        setAsset('BTC');
+
+    </script>
+</body>
+</html>
