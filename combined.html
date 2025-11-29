@@ -320,6 +320,390 @@
         .lb-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .rank-1 { color: #FFD700; }
 
+        /* --- MOBILE OPTIMIZATION --- */
+        @media (max-width: 768px) {
+            /* Navbar - Stack vertically on mobile */
+            nav {
+                height: auto;
+                flex-direction: column;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .nav-left, .nav-right {
+                width: 100%;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-left {
+                align-items: center;
+            }
+
+            /* Logo smaller on mobile */
+            .logo-mark {
+                width: 28px;
+                height: 28px;
+            }
+
+            .logo-text {
+                font-size: 1rem;
+            }
+
+            /* Asset pills - wrap on mobile */
+            .asset-pills {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .pill {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            /* Stats bar - stack vertically */
+            .stats-bar {
+                width: 100%;
+                border: none;
+                border-top: 1px solid var(--border);
+                border-bottom: 1px solid var(--border);
+                padding: 10px 0;
+                gap: 20px;
+            }
+
+            .stat-item {
+                flex: 1;
+            }
+
+            /* Nav right - full width buttons */
+            .nav-right {
+                align-items: stretch;
+            }
+
+            .nav-link, .btn-connect {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+            }
+
+            /* Chart drawer optimized for mobile */
+            #chart-drawer.open {
+                height: 250px;
+            }
+
+            /* Main stage - stack cards vertically */
+            .stage {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px 15px;
+                overflow-y: auto;
+            }
+
+            .stage.minimized {
+                gap: 15px;
+                padding: 15px;
+                overflow-y: auto;
+                max-height: calc(100vh - 250px - 200px);
+            }
+
+            /* Cards - full width on mobile, NO SIZE CHANGE when minimized */
+            .card {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+                min-height: 320px;
+                transform: none !important;
+                opacity: 1 !important;
+                filter: none !important;
+                flex-shrink: 0;
+            }
+
+            .stage.minimized .card {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+                min-height: 320px;
+            }
+
+            /* Card states - remove transforms on mobile */
+            .card.prev, .card.next, .card.live {
+                transform: none !important;
+                scale: 1 !important;
+            }
+
+            .card-body {
+                padding: 15px;
+                gap: 12px;
+            }
+
+            .stage.minimized .card-body {
+                padding: 10px;
+                gap: 8px;
+            }
+
+            /* Price display - adjust size */
+            .big-val {
+                font-size: 1.8rem;
+            }
+
+            .stage.minimized .big-val {
+                font-size: 1.15rem;
+            }
+
+            .price-display {
+                padding: 20px 0;
+            }
+
+            .stage.minimized .price-display {
+                padding: 10px 0;
+            }
+
+            /* Betting buttons */
+            .btn-bet {
+                padding: 16px;
+                font-size: 0.9rem;
+            }
+
+            .stage.minimized .btn-bet {
+                padding: 8px;
+                font-size: 0.75rem;
+            }
+
+            /* Card header smaller when minimized */
+            .stage.minimized .card-header {
+                padding: 8px;
+                font-size: 0.7rem;
+            }
+
+            /* Row data more compact when minimized */
+            .stage.minimized .row-data {
+                font-size: 0.7rem;
+                padding: 8px;
+            }
+
+            /* Diff tag smaller when minimized */
+            .stage.minimized .diff-tag {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+                margin-top: 5px;
+            }
+
+            /* Label text smaller when minimized */
+            .stage.minimized .label {
+                font-size: 0.65rem;
+                margin-bottom: 3px;
+            }
+
+            /* Bet select group more compact when minimized */
+            .stage.minimized .bet-select-group {
+                gap: 8px;
+            }
+
+            /* Input field */
+            .amt-input {
+                font-size: 1.3rem;
+                padding: 12px;
+            }
+
+            /* Socials - move to bottom center under cards on mobile */
+            .socials-bar {
+                position: static;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                gap: 12px;
+                padding: 20px 0;
+                margin-top: 0;
+            }
+
+            .social-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .social-icon svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            /* Modals - full screen on mobile */
+            .modal-box {
+                width: 95%;
+                max-height: 90vh;
+                margin: 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
+                max-height: 70vh;
+            }
+
+            /* Table - responsive */
+            .lb-table {
+                font-size: 0.75rem;
+            }
+
+            .lb-table th, .lb-table td {
+                padding: 8px 5px;
+            }
+
+            /* Hide tech corners on very small screens */
+            .card::before, .card::after {
+                display: none;
+            }
+
+            /* Row data - smaller text */
+            .row-data {
+                font-size: 0.7rem;
+                padding: 10px;
+            }
+
+            .stage.minimized .row-data {
+                font-size: 0.65rem;
+                padding: 6px;
+            }
+        }
+
+        /* Very small screens (phones in portrait) */
+        @media (max-width: 480px) {
+            .brand {
+                gap: 8px;
+            }
+
+            .logo-text {
+                font-size: 0.9rem;
+            }
+
+            .pill {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+
+            .stat-label {
+                font-size: 0.55rem;
+            }
+
+            .stat-val {
+                font-size: 0.8rem;
+            }
+
+            .card {
+                min-height: 380px;
+                max-width: 100%;
+            }
+
+            .stage.minimized .card {
+                min-height: 165px;
+                max-width: 100%;
+            }
+
+            .big-val {
+                font-size: 1.5rem;
+            }
+
+            .stage.minimized .big-val {
+                font-size: 1.05rem;
+            }
+
+            /* Chart drawer even smaller on very small screens */
+            #chart-drawer.open {
+                height: 180px;
+            }
+
+            /* Stage more compact when minimized */
+            .stage.minimized {
+                gap: 15px;
+                padding: 10px;
+            }
+
+            .stage.minimized .card-body {
+                padding: 9px;
+                gap: 7px;
+            }
+
+            .stage.minimized .btn-bet {
+                padding: 7px;
+                font-size: 0.7rem;
+            }
+
+            .stage.minimized .card-header {
+                padding: 7px;
+                font-size: 0.65rem;
+            }
+
+            .stage.minimized .row-data {
+                padding: 7px;
+                font-size: 0.65rem;
+            }
+
+            .stage.minimized .price-display {
+                padding: 9px 0;
+            }
+
+            .stage.minimized .diff-tag {
+                font-size: 0.65rem;
+                padding: 3px 5px;
+                margin-top: 4px;
+            }
+
+            .stage.minimized .label {
+                font-size: 0.6rem;
+                margin-bottom: 2px;
+            }
+
+            .stage.minimized .bet-select-group {
+                gap: 7px;
+            }
+
+            .nav-link, .btn-connect {
+                font-size: 0.7rem;
+                padding: 10px;
+            }
+
+            .modal-header {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+
+            .lb-table {
+                font-size: 0.7rem;
+            }
+
+            .lb-table th, .lb-table td {
+                padding: 6px 3px;
+            }
+        }
+
+        /* Landscape mode on phones */
+        @media (max-width: 768px) and (orientation: landscape) {
+            nav {
+                flex-direction: row;
+                height: auto;
+                padding: 10px 20px;
+            }
+
+            .nav-left, .nav-right {
+                flex-direction: row;
+                width: auto;
+            }
+
+            .stats-bar {
+                flex-direction: row;
+                border-left: 1px solid var(--border);
+                border-right: 1px solid var(--border);
+            }
+
+            .stage {
+                flex-direction: row;
+                overflow-x: auto;
+            }
+
+            .card {
+                width: 300px;
+                flex-shrink: 0;
+            }
+        }
+
     </style>
 </head>
 <body>
